@@ -5,28 +5,21 @@ const {
   login,
   register,
   forgotPassword,
-  resetPassword,
-  getUser,
-  getUsers
+  updateDetails,
+  updatePassword,
+  resetPassword
 } = require('../controllers/auth');
 
 const router = express.Router({ mergeParams: true });
 
-router
-  .route('/')
-  .get(getUsers);
 
-router
-  .route('/:userId')
-  .get(isAuth, getUser);
+router.route('/login').post(login);
 
-router
-  .route('/login')
-  .post(login);
+router.route('/register').post(register);
 
-router
-  .route('/register')
-  .post(register);
+router.put('/updatedetails', isAuth, updateDetails);
+
+router.put('/updatepassword', isAuth, updatePassword);
 
 router.post('/forgotpassword', forgotPassword);
 
