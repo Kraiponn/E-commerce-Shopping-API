@@ -37,3 +37,46 @@ exports.getUsers = asyncHandler(async (req, res, next) => {
     data: user
   });
 });
+
+// @desc    Create user
+// @route   POST /api/v1/users
+// @access  Public
+exports.createUser = asyncHandler(async (req, res, next) => {
+  const user = await User.create(req.body);
+
+  res.status(201).json({
+    success: true,
+    data: user
+  });
+});
+
+// @desc    Update user
+// @route   PUT /api/v1/users/:userId
+// @access  Public
+exports.updateaUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(
+    req.params.userId,
+    req.body,
+    {
+      new: true,
+      runValidators: true
+    }
+  );
+
+  res.status(200).json({
+    success: true,
+    data: user
+  });
+});
+
+// @desc    Delete user
+// @route   POST /api/v1/users
+// @access  Public
+exports.deleteUser = asyncHandler(async (req, res, next) => {
+  await User.findByIdAndDelete(req.params.userId);
+
+  res.status(201).json({
+    success: true,
+    data: {}
+  });
+});
