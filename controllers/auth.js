@@ -130,6 +130,24 @@ exports.updatePassword = asyncHandler(async (req, res, next) => {
   sendTokenResponse(user, 200, res);
 });
 
+// @desc    Get the current logged in user
+// @route   GET /api/v1/auth/:userId
+// @access  Public
+exports.getMe = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  if(!user) {
+    return next(
+      new ErrorResponse(`User not found with id of ${req.user.id}`, 404)
+    );
+  }
+
+  res.status(200).json({
+    success: true,
+    data: user
+  });
+});
+
 // @desc    Forgot password
 // @route   POST /api/v1/auth/forgotpassword
 // @access  Public

@@ -1,6 +1,6 @@
 const ErrorResponse = require("../utils/errorResponse");
 const asyncHandler = require("express-async-handler");
-const Category = require("../models/Categories");
+const Category = require("../models/Category");
 
 // @desc    Get all categories
 // @route   GET /api/v1/categories
@@ -14,17 +14,14 @@ exports.getCategories = asyncHandler(async (req, res, next) => {
 });
 
 // @desc    Get single category
-// @route   GET /api/v1/categories/:categoryId
+// @route   GET /api/v1/categories/:id
 // @access  Public
 exports.getCategory = asyncHandler(async (req, res, next) => {
-  const category = await Category.findById(req.params.categoryId);
+  const category = await Category.findById(req.params.id);
 
   if (!category) {
     return next(
-      new ErrorResponse(
-        `Category not found with id of ${req.params.catetoryId}`,
-        400
-      )
+      new ErrorResponse(`Category not found with id of ${req.params.id}`, 400)
     );
   }
 
@@ -63,17 +60,14 @@ exports.createCategory = asyncHandler(async (req, res, next) => {
 });
 
 // @desc    Update category : category owner or admin
-// @route   PUT /api/v1/categories/:categoryId
+// @route   PUT /api/v1/categories/:id
 // @access  Private
 exports.updateCategory = asyncHandler(async (req, res, next) => {
-  let category = await Category.findById(req.params.categoryId);
+  let category = await Category.findById(req.params.id);
 
   if (!category) {
     return next(
-      new ErrorResponse(
-        `Category not found with id of ${req.params.categoryId}`,
-        400
-      )
+      new ErrorResponse(`Category not found with id of ${req.params.id}`, 400)
     );
   }
 
@@ -81,23 +75,52 @@ exports.updateCategory = asyncHandler(async (req, res, next) => {
   if (category.user.toString() !== req.user.id && req.user.role !== "admin") {
     return next(
       new ErrorResponse(
-        `User ${req.params.categoryId} is not authorized to update category`,
+        `User ${req.params.id} is not authorized to update category`,
         401
       )
     );
   }
 
-  category = await Category.findByIdAndUpdate(
-    req.params.categoryId,
-    req.body,
-    {
-      new: true,
-      runValidators: true
-    }
-  );
+  category = await Category.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true
+  });
 
-  res.status(201).json({
+  res.status(200).json({
     success: true,
     data: category
+  });
+});
+
+// @desc    Delete category : category owner or admin
+// @route   DELETE /api/v1/categories/:id
+// @access  Private
+exports.deleteCategory = asyncHandler(async (req, res, next) => {
+  const category = await Category.findById(req.params.id);
+
+  if (!category) {
+    return next(
+      new ErrorResponse(
+        `User not found with id of ${req.params.id}`,
+        401
+      )
+    );
+  }
+
+  // Check for user is category owner
+  if (category.user.toString() !== req.user.id && req.user.role !== "admin") {
+    return next(
+      new ErrorResponse(
+        `User ${req.params.id} is not authorized to delete category`,
+        401
+      )
+    );
+  }
+
+  category.remove();
+
+  res.status(200).json({
+    success: true,
+    data: {}
   });
 });
